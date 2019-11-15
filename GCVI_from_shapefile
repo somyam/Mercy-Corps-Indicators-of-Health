@@ -1,0 +1,17 @@
+var s2 = ee.ImageCollection("COPERNICUS/S2_SR");
+
+var image = ee.Image(
+  s2.filterBounds(table)
+    .filterDate('2017-03-28', '2019-10-20')
+    .sort('CLOUD_COVER')
+    .first())
+    .clip(table);
+  
+var nir = image.select('B8');
+var green = image.select('B3');
+var gcvi = (nir.divide(green)).subtract(1).rename('GCVI');
+
+Map.centerObject(table,13);
+var gcviParams = {min: -1, max: 1, palette: ['blue', 'white', 'green']};
+Map.addLayer(gcvi, gcviParams, 'GCVI image');
+Map.addLayer(table);
