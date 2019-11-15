@@ -3,7 +3,7 @@
 var s2 = ee.ImageCollection("COPERNICUS/S2_SR"); // Sentinel-2
 
 var image = ee.Image(
-  s2.filterBounds(table)
+  s2.filterBounds(table) // table should be an import of a shapefile asset
     .filterDate('2017-03-28', '2019-10-20')
     .sort('CLOUD_COVER') // Get least cloudy image
     .first())
