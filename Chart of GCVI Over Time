@@ -1,0 +1,21 @@
+// *Import Intervention Fields Polygons table here*
+
+// Google Earth Engine Script //
+
+var s2 = ee.ImageCollection("COPERNICUS/S2_SR"); // Sentinel-2
+
+// formula for GCVI
+var withGCVI = s2.filterBounds(table).map(function(image) {
+  var nir = image.select('B8');
+  var green = image.select('B3');
+  var gcvi = (nir.divide(green)).subtract(1).rename('GCVI');
+  return image.addBands(gcvi);
+});
+
+// print chart of GCVI over time
+print(ui.Chart.image.series({
+  imageCollection: withGCVI.select('GCVI'),
+  region: table,
+  reducer: ee.Reducer.first(),
+  scale: 30
+}).setOptions({title: 'GCVI over time'}));
