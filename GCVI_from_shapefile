@@ -1,19 +1,33 @@
 // Google Earth Engine Script //
 
-var s2 = ee.ImageCollection("COPERNICUS/S2_SR"); // Sentinel-2
+var s2 = ee.ImageCollection("COPERNICUS/S2_SR"); // Sentinel-2 Surface Reflectance
 
+// Images will be searched only in this date range:
+start_date = '2017-03-28';  // customize this date (keep single quotes)
+end_date = '2019-10-20';    // customize this date (keep single quotes)
+
+// Find an image from the image collection based on filters
 var image = ee.Image(
-  s2.filterBounds(table) // table should be an import of a shapefile asset
-    .filterDate('2017-03-28', '2019-10-20')
+  s2.filterBounds(table) // image collection filtered spatially (table should be an import of a shapefile asset)
+    .filterDate(start_date, end_date) // filtered temporally
     .sort('CLOUD_COVER') // Get least cloudy image
     .first())
     .clip(table); // Show only within polygons
   
-var nir = image.select('B8');
-var green = image.select('B3');
-var gcvi = (nir.divide(green)).subtract(1).rename('GCVI');
+// Calculate GCVI
+var nir = image.select('B8');   // Sentinel NIR = 'B8'; Landsat NIR = 'B5'
+var green = image.select('B3'); // Sentinel Green = 'B3'; Landsat Green = 'B3'
+var gcvi = (nir.divide(green)).subtract(1).rename('GCVI'); // GCVI = (NIR / Green) - 1
 
-Map.centerObject(table,13);
-var gcviParams = {min: -1, max: 1, palette: ['blue', 'white', 'green']};
+Map.centerObject(table, 13); // center the map on table, zoom level specified
+var gcviParams = {min: -1, max: 1, palette: ['blue', 'white', 'green']}; // [Negative GCVIs, Zero GCVIs, Positive GCVIs]
 Map.addLayer(gcvi, gcviParams, 'GCVI image');
 Map.addLayer(table, false); // Make true to see shapes in GEE
+
+// Get a list of all metadata properties.
+var properties = image.propertyNames();
+print('Metadata properties: ', properties); // ee.List of metadata properties
+
+// Get the timestamp and convert it to a date.
+var date = ee.Date(image.get('system:time_start'));
+print('Timestamp: ', date); // ee.Date
