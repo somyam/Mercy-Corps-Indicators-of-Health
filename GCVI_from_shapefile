@@ -19,12 +19,13 @@ var nir = image.select('B8');   // Sentinel NIR = 'B8'; Landsat NIR = 'B5'
 var green = image.select('B3'); // Sentinel Green = 'B3'; Landsat Green = 'B3'
 var gcvi = (nir.divide(green)).subtract(1).rename('GCVI'); // GCVI = (NIR / Green) - 1
 
+// Show GCVI on the map!
 Map.centerObject(table, 13); // center the map on table, zoom level specified
 var gcviParams = {min: -1, max: 1, palette: ['blue', 'white', 'green']}; // [Negative GCVIs, Zero GCVIs, Positive GCVIs]
 Map.addLayer(gcvi, gcviParams, 'GCVI image');
 Map.addLayer(table, false); // Make true to see shapes in GEE
 
-// Get a list of all metadata properties.
+// Get a list of all metadata properties for the image
 var properties = image.propertyNames();
 print('Metadata properties: ', properties); // ee.List of metadata properties
 
