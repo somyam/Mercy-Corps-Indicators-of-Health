@@ -1,5 +1,13 @@
 // Google Earth Engine Script //
 
+// This script will show a color-coded GCVI on a map for a given shapefile.
+// It pulls the least cloudy image from between 'start_date' and 'end_date'
+// and calculates GCVI from the singular image.
+
+// This script requires an asset upload in the form of a shapefile.
+// When the shapefile is uploaded, it will be imported with the name 'table'.
+// If renamed, also rename all instance of 'table' within this template.
+
 var s2 = ee.ImageCollection("COPERNICUS/S2_SR"); // Sentinel-2 Surface Reflectance
 
 // Images will be searched only in this date range:
