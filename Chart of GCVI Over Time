@@ -16,6 +16,6 @@ var withGCVI = s2.filterBounds(table).map(function(image) {
 print(ui.Chart.image.series({
   imageCollection: withGCVI.select('GCVI'),
   region: table,
-  reducer: ee.Reducer.first(),
+  reducer: ee.Reducer.median(), // median GCVI value
   scale: 30
 }).setOptions({title: 'GCVI over time'}));
