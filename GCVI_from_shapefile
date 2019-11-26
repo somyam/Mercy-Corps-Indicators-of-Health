@@ -11,8 +11,8 @@
 var s2 = ee.ImageCollection("COPERNICUS/S2_SR"); // Sentinel-2 Surface Reflectance
 
 // Images will be searched only in this date range:
-start_date = '2017-03-28';  // customize this date (keep single quotes)
-end_date = '2019-10-20';    // customize this date (keep single quotes)
+var start_date = '2017-03-28';  // customize this date (keep single quotes)
+var end_date = '2019-10-20';    // customize this date (keep single quotes)
 
 // Find an image from the image collection based on filters
 var image = ee.Image(
