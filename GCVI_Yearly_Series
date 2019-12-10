@@ -5,6 +5,10 @@
 // The script also generates a graph of cloudiness through time in a separate plot,
 // allowing the user to see how cloudy/obscured the images were at a certain time,
 // as very cloudy images are less reliable.
+// The cloudiness chart relies on a cloudiness image property unique to certain satellite collections.
+// In Sentinel 2, the image property is called "CLOUDY_PIXEL_PERCENTAGE"
+// Note that changes to the satellite used would also require a change 
+// to all instances of "CLOUDY_PIXEL_PERCENTAGE" in this example code.
 
 // Import shapefile as var table from GEE assets.
 
