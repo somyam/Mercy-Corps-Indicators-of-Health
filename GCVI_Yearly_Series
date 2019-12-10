@@ -17,7 +17,8 @@ var satellite_choice = "COPERNICUS/S2";
 // Format: "YYYY-MM-DD"
 var start_date = "2017-03-29";
 var end_date = "2019-03-29";
-Band names from GEE satellite info page:
+
+// Band names from GEE satellite info page:
 var nir_band_name = "B8";
 var green_band_name = "B3";
 
