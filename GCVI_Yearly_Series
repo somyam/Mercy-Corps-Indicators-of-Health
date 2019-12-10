@@ -6,7 +6,7 @@
 // allowing the user to see how cloudy/obscured the images were at a certain time,
 // as very cloudy images are less reliable.
 
-// Import shapefile as var table here.
+// Import shapefile as var table from GEE assets.
 
 // Choose satellite collection.
 // Sentinel-2 ToA Reflectance:      "COPERNICUS/S2"
