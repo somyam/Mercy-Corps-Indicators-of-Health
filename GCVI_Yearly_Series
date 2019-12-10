@@ -47,7 +47,7 @@ var GCVI_doy_yearly = ui.Chart.image.doySeriesByYear(
     withGCVI, "GCVI", table, ee.Reducer.median(), 30);
 
 // Create cloudy pixel percentage band for each image in collection
-var addcpp = s2.filterBounds(table).map(function(image){
+var addcpp = sat.filterBounds(table).map(function(image){
 var doy = ee.Number(image.get('CLOUDY_PIXEL_PERCENTAGE'));
 var bandcpp = image.select('B8').multiply(0).eq(0).multiply(doy).rename('CLOUDY_PIXEL_PERCENTAGE');
 return image.addBands(bandcpp);
