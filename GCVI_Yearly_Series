@@ -22,10 +22,11 @@ var end_date = "2019-03-29";
 var nir_band_name = "B8";
 var green_band_name = "B3";
 
+// Define image collection
 var sat = ee.ImageCollection(satellite_choice)
-            .filterDate(ee.Date(start_date), ee.Date("2019-03-29"));
+            .filterDate(ee.Date(start_date), ee.Date(end_date));
 
-// formula for GCVI
+// Function to add GCVI band
 var withGCVI = sat.filterBounds(table).map(function(image) {
   var nir = image.select(nir_band_name);
   var green = image.select(green_band_name);
@@ -33,7 +34,7 @@ var withGCVI = sat.filterBounds(table).map(function(image) {
   return image.addBands(gcvi);
 });
 
-// print chart of GCVI over time
+// Print chart of GCVI over time
 print(ui.Chart.image.series({
   imageCollection: withGCVI.select('GCVI'),
   region: table,
@@ -41,18 +42,9 @@ print(ui.Chart.image.series({
   scale: 30
 }).setOptions({title: 'GCVI over time'}));
 
-// Define a chart with one series in the forest region, averaged by DOY.
-var series1 = ui.Chart.image.doySeries(
-    withGCVI.select('GCVI'), table, ee.Reducer.median(), 30);
-
 // Define a chart with a a different series for each year in the region.
-var series2 = ui.Chart.image.doySeriesByYear(
-    withGCVI, "GCVI", table, ee.Reducer.mean(), 30);
-
-// Define a chart with different series for each region, averaged by DOY.
-var series3 = ui.Chart.image.doySeriesByRegion(
-    withGCVI, "GCVI", table, ee.Reducer.median(), 30, ee.Reducer.mean(), 'label');
-
+var GCVI_doy_yearly = ui.Chart.image.doySeriesByYear(
+    withGCVI, "GCVI", table, ee.Reducer.median(), 30);
 
 // Create cloudy pixel percentage band for each image in collection
 var addcpp = s2.filterBounds(table).map(function(image){
@@ -62,9 +54,8 @@ return image.addBands(bandcpp);
 });
 
 // Define a chart with a a different series for each year in the region.
-var series4 = ui.Chart.image.doySeriesByYear(
+var cpp_doy_yearly = ui.Chart.image.doySeriesByYear(
     addcpp, "CLOUDY_PIXEL_PERCENTAGE", table, ee.Reducer.mean(), 30);
 
-
-// Display the four charts.
-print(series1, series2, series3, series4);
+// Display the charts.
+print(GCVI_doy_yearly, cpp_doy_yearly);
