@@ -12,6 +12,9 @@
 
 // Import shapefile as var table from GEE assets.
 
+// Prints area of polygon in square meters.
+print('Polygon area: ', table.area());
+
 // Choose satellite collection.
 // Sentinel-2 ToA Reflectance:      "COPERNICUS/S2"
 // Sentinel-2 Surface Reflectance:  "COPERNICUS/S2_SR" (limited temporal range on GEE)
