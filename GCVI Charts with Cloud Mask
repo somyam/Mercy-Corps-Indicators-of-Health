@@ -1,0 +1,82 @@
+
+// Google Earth Engine Script //
+// This script will graph GCVI vs Day of Year from top-of-atmosphere reflectance from Sentinel 2.
+// The output graph will be split up in series by year, with day of year on the horizontal axis
+// and average GCVI on the vertical axis.
+// The script also generates a graph of cloudiness through time in a separate plot,
+// allowing the user to see how cloudy/obscured the images were at a certain time,
+// as very cloudy images are less reliable.
+// The cloudiness chart relies on a cloudiness image property unique to certain satellite collections.
+// In Sentinel 2, the image property is called "CLOUDY_PIXEL_PERCENTAGE"
+// Note that changes to the satellite used would also require a change 
+// to all instances of "CLOUDY_PIXEL_PERCENTAGE" in this example code.
+
+// Import shapefile as var table from GEE assets.
+
+// Prints area of polygon in square meters.
+//print('Polygon area: ', table.area());
+
+// Choose satellite collection.
+// Sentinel-2 ToA Reflectance:      "COPERNICUS/S2"
+// Sentinel-2 Surface Reflectance:  "COPERNICUS/S2_SR" (limited temporal range on GEE)
+var satellite_choice = "COPERNICUS/S2";
+
+// Customize start and end date within bounds of satellite temporal range. 
+// Format: "YYYY-MM-DD"
+var start_date = "2017-03-29";
+var end_date = "2019-03-29";
+
+// Band names from GEE satellite info page:
+var nir_band_name = "B8";
+var green_band_name = "B3";
+
+// Define image collection
+var sat = ee.ImageCollection(satellite_choice).filterDate(ee.Date(start_date), ee.Date(end_date));
+
+//Function to mask clouds for each image
+function maskS2clouds(image) {
+  var cloudMask = ee.Number(2).pow(10).int();
+  var cirrusMask = ee.Number(2).pow(11).int();
+  var qa = image.select('QA60');
+  // Both flags should be set to zero, indicating clear conditions.
+  var mask = qa.bitwiseAnd(cloudMask).eq(0).and(qa.bitwiseAnd(cirrusMask).eq(0));
+  return image.updateMask(mask);
+}
+
+//Function to add GCVI band
+var withGCVI = sat.filterBounds(table).map(function(image) {
+  var nir = image.select(nir_band_name);
+  var green = image.select(green_band_name);
+  var gcvi = (nir.divide(green)).subtract(1).rename('GCVI');
+  return image.addBands(gcvi);
+});
+
+//GCVI with cloud masking
+var maskedGCVI = withGCVI.map(maskS2clouds);
+
+
+// Print chart of GCVI over time
+print(ui.Chart.image.series({
+  imageCollection: maskedGCVI.select('GCVI'),
+  region: table,
+  reducer: ee.Reducer.median(), // median GCVI value
+  scale: 30
+}).setOptions({title: 'GCVI over time'}));
+
+// Define a chart with a a different series for each year in the region.
+var GCVI_doy_yearly = ui.Chart.image.doySeriesByYear(
+    maskedGCVI, "GCVI", table, ee.Reducer.median(), 30);
+
+//Create cloudy pixel percentage band for each image in collection
+var addcpp = sat.filterBounds(table).map(function(image){
+var doy = ee.Number(image.get('CLOUDY_PIXEL_PERCENTAGE'));
+var bandcpp = image.select('B8').multiply(0).eq(0).multiply(doy).rename('CLOUDY_PIXEL_PERCENTAGE');
+return image.addBands(bandcpp);
+});
+
+// Define a chart with a a different series for each year in the region.
+var cpp_doy_yearly = ui.Chart.image.doySeriesByYear(
+    addcpp.map(maskS2clouds), "CLOUDY_PIXEL_PERCENTAGE", table, ee.Reducer.mean(), 30);
+
+// Display the charts.
+print(GCVI_doy_yearly, cpp_doy_yearly);
